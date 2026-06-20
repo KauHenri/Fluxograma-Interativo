@@ -67,6 +67,12 @@ header {
   align-items: center;
   gap: 16px;
   height: 56px;
+  overflow-x: auto; 
+	scrollbar-width: none;
+}
+
+header::-webkit-scrollbar {
+	display: none; 
 }
 
 .logo {
@@ -134,6 +140,7 @@ header {
   transition: border-color .15s, color .15s, background .15s;
   white-space: nowrap;
   text-decoration: none;
+  flex-shrink: 0;
 }
 .btn-icon:hover {
   border-color: var(--accent);
