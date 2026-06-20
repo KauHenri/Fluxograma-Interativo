@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluxograma ECP-IA · FEELT/UFU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ── Reset & Tokens ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0f1117;
+  --surface:     #161b27;
+  --surface2:    #1c2235;
+  --border:      #2a3148;
+
+  --c-disponivel-bg:   #0f1117;
+  --c-disponivel-bd:   #475569;
+  --c-disponivel-txt:  #94a3b8;
+
+  --c-concluida-bg:    #0d2b1a;
+  --c-concluida-bd:    #22c55e;
+  --c-concluida-txt:   #86efac;
+
+  --c-bloqueada-bg:    #1f1318;
+  --c-bloqueada-bd:    #7a2535;
+  --c-bloqueada-txt:   #c88;
+
+  --c-planejada-bg:    #131829;
+  --c-planejada-bd:    #4a7fc1;
+  --c-planejada-txt:   #b3cfee;
+
+  --c-destaque-bd:     #7c3aed;
+  --c-destaque-bg:     #1e1535;
+
+  --accent:      #7c3aed;
+  --accent2:     #a855f7;
+  --mono:        'JetBrains Mono', monospace;
+  --sans:        'Inter', system-ui, sans-serif;
+
+  --card-w:      148px;
+  --card-gap:    8px;
+  --col-gap:     16px;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 56px;
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--accent2);
+  white-space: nowrap;
+}
+.logo span { color: #64748b; font-weight: 400; }
+
+.header-spacer { flex: 1; }
+
+/* Progress circuit */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 420px;
+}
+.progress-label {
+  font-size: 11px;
+  color: #64748b;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 3px;
+  transition: width .4s ease;
+  box-shadow: 0 0 8px var(--accent);
+}
+.progress-pct {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent2);
+  white-space: nowrap;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Header buttons */
+.btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #94a3b8;
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+  white-space: nowrap;
+}
+.btn-icon:hover {
+  border-color: var(--accent);
+  color: var(--accent2);
+  background: #1e1535;
+}
+.btn-icon svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── Filter bar ─────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-label {
+  font-size: 11px;
+  color: #475569;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.chip:hover { border-color: #475569; color: #94a3b8; }
+.chip.active { border-color: var(--accent); color: var(--accent2); background: #1e1535; }
+.chip-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .7;
+}
+
+/* ── Legend + Controls ──────────────────────────────────────────── */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.controls-bar::-webkit-scrollbar { display: none; }
+
+.legend {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #64748b;
+}
+.legend-swatch {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  border-width: 1.5px;
+  border-style: solid;
+}
+.ls-disponivel { background: var(--c-disponivel-bg); border-color: var(--c-disponivel-bd); }
+.ls-concluida  { background: var(--c-concluida-bg);  border-color: var(--c-concluida-bd); }
+.ls-bloqueada  { background: var(--c-bloqueada-bg);  border-color: var(--c-bloqueada-bd); }
+.ls-planejada  { background: var(--c-planejada-bg);  border-color: var(--c-planejada-bd); }
+
+.controls-spacer { flex: 1; }
+
+.btn-small {
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-small:hover { border-color: #7a2535; color: #f87171; }
+
+/* ── Main grid ──────────────────────────────────────────────────── */
+.grid-wrapper {
+  overflow-x: auto;
+  padding: 20px;
+  padding-bottom: 40px;
+}
+
+.grid {
+  display: flex;
+  gap: var(--col-gap);
+  align-items: flex-start;
+  min-width: max-content;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: var(--card-w);
+}
+
+.col-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #475569;
+  padding: 0 4px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.col-ch {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #334155;
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: .04em;
+}
+
+/* Multi-period column */
+.col-multi { width: 160px; }
+
+/* ── Cards ──────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  width: 100%;
+  border-radius: 7px;
+  border: 1.5px solid var(--c-bloqueada-bd);
+  background: var(--c-bloqueada-bg);
+  color: var(--c-bloqueada-txt);
+  padding: 8px 9px 7px;
+  margin-bottom: var(--card-gap);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s, box-shadow .15s;
+  user-select: none;
+}
+
+.card[data-status="disponivel"] {
+  border-color: var(--c-disponivel-bd);
+  background:   var(--c-disponivel-bg);
+  color:        var(--c-disponivel-txt);
+}
+.card[data-status="concluida"] {
+  border-color: var(--c-concluida-bd);
+  background:   var(--c-concluida-bg);
+  color:        var(--c-concluida-txt);
+}
+.card[data-status="planejada"] {
+  border-color: var(--c-planejada-bd);
+  background:   var(--c-planejada-bg);
+  color:        var(--c-planejada-txt);
+}
+.card.destaque {
+  border-color: var(--c-destaque-bd) !important;
+  background:   var(--c-destaque-bg) !important;
+  box-shadow: 0 0 0 1px var(--c-destaque-bd), 0 0 12px rgba(124,58,237,.3);
+}
+.card.dimmed { opacity: .3; }
+
+.card:hover:not(.bloqueada-hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
+.card[data-status="bloqueada"] { cursor: default; }
+.card[data-status="bloqueada"]:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.card-name {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 5px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-ch {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: inherit;
+  opacity: .7;
+}
+
+.card-badges {
+  margin-left: auto;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+/* ✓ concluída */
+.badge-check {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--c-concluida-bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.badge-check svg { width: 8px; height: 8px; color: #fff; }
+
+/* ? dependentes */
+.badge-dep {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #94a3b8;
+  border: 1px solid #2a3148;
+  border-radius: 3px;
+  padding: 0 3px;
+  line-height: 14px;
+  cursor: help;
+}
+.card[data-status="disponivel"] .badge-dep { border-color: #2a4a35; }
+.card[data-status="concluida"]  .badge-dep { border-color: #1e4a35; }
+
+/* ⋆ correquisito tag */
+.badge-coreq {
+  font-size: 9px;
+  color: #f59e0b;
+  opacity: .7;
+}
+
+/* area dot */
+.card-area-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  opacity: .6;
+}
+
+/* lock icon for blocked */
+.card-lock {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  opacity: .3;
+}
+.card-lock svg { width: 9px; height: 9px; }
+
+/* ── Tooltip ─────────────────────────────────────────────────────── */
+#tooltip {
+  position: fixed;
+  z-index: 999;
+  background: #1e2535;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  max-width: 240px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+#tooltip.visible { opacity: 1; }
+
+.tt-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.tt-area {
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+.tt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  margin-bottom: 3px;
+  color: #94a3b8;
+}
+.tt-row span:last-child {
+  font-family: var(--mono);
+  color: #cbd5e1;
+}
+.tt-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+}
+.tt-prereqs, .tt-coreqs {
+  font-size: 10px;
+  margin-top: 5px;
+}
+.tt-prereqs strong, .tt-coreqs strong {
+  display: block;
+  color: #64748b;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+.tt-prereq-item {
+  padding: 2px 0;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+.tt-prereq-item.ok { color: var(--c-concluida-txt); }
+.tt-prereq-item.missing { color: var(--c-bloqueada-txt); }
+.tt-hint {
+  font-size: 10px;
+  color: #475569;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ── Horas Panel ─────────────────────────────────────────────────── */
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.panel-overlay.open {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  width: min(480px, calc(100vw - 40px));
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #f1f5f9;
+}
+
+.panel-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.panel-row:last-of-type { border-bottom: none; }
+
+.panel-row-label {
+  font-size: 12px;
+  color: #94a3b8;
+  flex: 1;
+}
+.panel-row-bar {
+  width: 120px;
+  height: 5px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.panel-row-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.panel-row-nums {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  text-align: right;
+  min-width: 70px;
+}
+.panel-row-nums em { color: var(--accent2); font-style: normal; }
+
+.panel-close {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 8px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #64748b;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.panel-close:hover { border-color: var(--accent); color: var(--accent2); }
+
+/* ── Area colors (dot) ────────────────────────────────────────────── */
+.dot-mat { background: #60a5fa; }
+.dot-fis { background: #f472b6; }
+.dot-com { background: #34d399; }
+.dot-hw  { background: #fb923c; }
+.dot-ia  { background: var(--accent2); }
+.dot-red { background: #22d3ee; }
+.dot-sof { background: #facc15; }
+.dot-ext { background: #94a3b8; }
+.dot-opt { background: #475569; }
+
+/* ── Toast ───────────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #94a3b8;
+  z-index: 500;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+  opacity: 0;
+  white-space: nowrap;
+}
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a3148; border-radius: 3px; }
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  header { padding: 0 12px; gap: 8px; }
+  .progress-wrap { max-width: 160px; }
+  .logo span { display: none; }
+  .grid-wrapper { padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="logo">ECP-IA <span>· FEELT/UFU</span></div>
+
+  <div class="progress-wrap">
+    <span class="progress-label" id="prog-label">0 / 56</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+
+  <div class="header-spacer"></div>
+
+  <button class="btn-icon" id="btn-horas" title="Ver carga horária">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+    Horas
+  </button>
+
+  <button class="btn-icon" id="btn-compartilhar" title="Copiar link com progresso">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Compartilhar
+  </button>
+</header>
+
+<!-- ── Filter bar ── -->
+<div class="filter-bar">
+  <span class="filter-label">Área:</span>
+  <button class="chip active" data-filter="all">Todas</button>
+  <button class="chip" data-filter="Matemática"><span class="chip-dot dot-mat"></span>Matemática</button>
+  <button class="chip" data-filter="Física"><span class="chip-dot dot-fis"></span>Física</button>
+  <button class="chip" data-filter="Computação"><span class="chip-dot dot-com"></span>Computação</button>
+  <button class="chip" data-filter="Hardware"><span class="chip-dot dot-hw"></span>Hardware</button>
+  <button class="chip" data-filter="Inteligência Artificial"><span class="chip-dot dot-ia"></span>IA</button>
+  <button class="chip" data-filter="Redes e Comunicações"><span class="chip-dot dot-red"></span>Redes</button>
+  <button class="chip" data-filter="Engenharia de Software"><span class="chip-dot dot-sof"></span>Software</button>
+  <button class="chip" data-filter="Extensão"><span class="chip-dot dot-ext"></span>Extensão</button>
+</div>
+
+<!-- ── Controls ── -->
+<div class="controls-bar">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-swatch ls-disponivel"></span>Disponível</span>
+    <span class="legend-item"><span class="legend-swatch ls-concluida"></span>Concluída</span>
+    <span class="legend-item"><span class="legend-swatch ls-bloqueada"></span>Bloqueada</span>
+    <span class="legend-item"><span class="legend-swatch ls-planejada"></span>Planejada</span>
+    <span class="legend-item" style="color:#64748b;font-size:10px;margin-left:4px">
+      clique direito = planejar · hover = destacar dependências
+    </span>
+  </div>
+  <div class="controls-spacer"></div>
+  <button class="btn-small" id="btn-reset">Limpar progresso</button>
+</div>
+
+<!-- ── Grid ── -->
+<div class="grid-wrapper">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ── Painel de Horas ── -->
+<div class="panel-overlay" id="panel-overlay">
+  <div class="panel">
+    <div class="panel-title">⏱ Carga Horária</div>
+    <div id="panel-rows"></div>
+    <button class="panel-close" id="panel-close">Fechar</button>
+  </div>
+</div>
+
+<!-- ── Tooltip ── -->
+<div id="tooltip"></div>
+
+<!-- ── Toast ── -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════════ */
+const AREAS = {
+  MATEMATICA: "Matemática", FISICA: "Física", COMPUTACAO: "Computação",
+  HARDWARE: "Hardware", IA: "Inteligência Artificial",
+  REDES: "Redes e Comunicações", SOFTWARE: "Engenharia de Software",
+  EXTENSAO: "Extensão", OPTATIVA: "Optativa",
+};
+
+const disciplinas = [
+  // 1º
+  { id:"01", nome:"Cálculo Diferencial e Integral I",     periodo:1, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
+  { id:"02", nome:"Geometria Analítica",                  periodo:1, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
+  { id:"03", nome:"Introdução à Engenharia de Computação",periodo:1, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"04", nome:"Introdução à Prototipagem Eletrônica", periodo:1, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.HARDWARE  },
+  { id:"05", nome:"Lógica e Matemática Discreta",         periodo:1, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
+  { id:"06", nome:"Programação Script",                   periodo:1, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.COMPUTACAO },
+  // 2º
+  { id:"07", nome:"Álgebra Linear",                       periodo:2, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
+  { id:"08", nome:"Cálculo Diferencial e Integral II",    periodo:2, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:["01"],        coreqs:[], area:AREAS.MATEMATICA },
+  { id:"09", nome:"Física Básica: Mecânica",              periodo:2, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["01"],        coreqs:[], area:AREAS.FISICA    },
+  { id:"10", nome:"Física Básica: Mecânica (Exp.)",       periodo:2, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],         coreqs:["09"], area:AREAS.FISICA    },
+  { id:"11", nome:"Metrologia",                           periodo:2, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.HARDWARE  },
+  { id:"12", nome:"Programação Procedimental",            periodo:2, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:["06"],        coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"13", nome:"Sistemas Digitais",                    periodo:2, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:["05"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"14", nome:"Sistemas Digitais (Exp.)",             periodo:2, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],         coreqs:["13"], area:AREAS.HARDWARE  },
+  // 3º
+  { id:"15", nome:"Cálculo Diferencial e Integral III",   periodo:3, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:["08"],        coreqs:[], area:AREAS.MATEMATICA },
+  { id:"16", nome:"Física Básica: Eletricidade e Magnetismo", periodo:3,cht:60,chp:0,chd:0,che:0,total:60, prereqs:["09"],     coreqs:["17"], area:AREAS.FISICA    },
+  { id:"17", nome:"Física Básica: Eletricidade e Magnetismo (Exp.)", periodo:3,cht:0,chp:30,chd:0,che:0,total:30, prereqs:[], coreqs:["16"], area:AREAS.FISICA    },
+  { id:"18", nome:"Elementos de Sistemas Computacionais", periodo:3, cht:30,chp:0, chd:30,che:0,total:60,  prereqs:["13"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"19", nome:"Estrutura de Dados",                   periodo:3, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"20", nome:"IA, Ética e Sociedade",                periodo:3, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.IA        },
+  { id:"21", nome:"Programação Funcional",                periodo:3, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"22", nome:"Programação Orientada a Objetos",      periodo:3, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
+  // 4º
+  { id:"23", nome:"Estatística",                          periodo:4, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["15"],        coreqs:[], area:AREAS.MATEMATICA },
+  { id:"24", nome:"Métodos Matemáticos",                  periodo:4, cht:75,chp:0, chd:0,che:0, total:75,  prereqs:["15"],        coreqs:[], area:AREAS.MATEMATICA },
+  { id:"25", nome:"Análise de Algoritmos",                periodo:4, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["19"],        coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"26", nome:"Arquitetura e Organização de Computadores", periodo:4,cht:60,chp:0,chd:0,che:0,total:60,prereqs:["18"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"27", nome:"Banco de Dados",                       periodo:4, cht:15,chp:45,chd:0,che:0, total:60,  prereqs:["19"],        coreqs:[], area:AREAS.SOFTWARE  },
+  { id:"28", nome:"Circuitos Eletro-Elétricos I",         periodo:4, cht:75,chp:0, chd:0,che:0, total:75,  prereqs:["16"],     coreqs:["29"], area:AREAS.HARDWARE  },
+  { id:"29", nome:"Circuitos Eletro-Elétricos I (Exp.)",  periodo:4, cht:0, chp:15,chd:0,che:0, total:15,  prereqs:["11"],     coreqs:["28"], area:AREAS.HARDWARE  },
+  { id:"30", nome:"Ativ. Curriculares de Extensão I",     periodo:4, cht:0, chp:0, chd:0,che:90,total:90,  prereqs:[],            coreqs:[], area:AREAS.EXTENSAO  },
+  // 5º
+  { id:"31", nome:"Cálculo Numérico",                     periodo:5, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["07","15"],   coreqs:[], area:AREAS.MATEMATICA },
+  { id:"32", nome:"Empreendedorismo e Inovação",          periodo:5, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.SOFTWARE  },
+  { id:"33", nome:"Eletrônica Analógica I",               periodo:5, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["28"],     coreqs:["34"], area:AREAS.HARDWARE  },
+  { id:"34", nome:"Eletrônica Analógica I (Exp.)",        periodo:5, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:["33"],     coreqs:["33"], area:AREAS.HARDWARE  },
+  { id:"35", nome:"Engenharia de Software",               periodo:5, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["22","27"],   coreqs:[], area:AREAS.SOFTWARE  },
+  { id:"36", nome:"Fundamentos da Inteligência Artificial",periodo:5,cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["23"],        coreqs:[], area:AREAS.IA        },
+  { id:"37", nome:"Sistemas Operacionais",                periodo:5, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["12","26"],   coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"38", nome:"Ativ. Curriculares de Extensão II",    periodo:5, cht:0, chp:0, chd:0,che:90,total:90,  prereqs:["30"],        coreqs:[], area:AREAS.EXTENSAO  },
+  // 6º
+  { id:"39", nome:"Aprendizagem de Máquina",              periodo:6, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["07","15","36"],coreqs:[], area:AREAS.IA       },
+  { id:"40", nome:"Processamento Digital de Sinais",      periodo:6, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["24"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"41", nome:"Redes de Comunicações I",              periodo:6, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["37"],        coreqs:[], area:AREAS.REDES     },
+  { id:"42", nome:"Sistemas Embarcados I",                periodo:6, cht:45,chp:30,chd:0,che:0, total:75,  prereqs:["26","33","37"],coreqs:[], area:AREAS.HARDWARE },
+  { id:"43", nome:"Teoria da Computação",                 periodo:6, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["25"],        coreqs:[], area:AREAS.COMPUTACAO },
+  { id:"44", nome:"Ativ. Curriculares de Extensão III",   periodo:6, cht:0, chp:0, chd:0,che:75,total:75,  prereqs:["38"],        coreqs:[], area:AREAS.EXTENSAO  },
+  // 7º
+  { id:"45", nome:"Aprendizagem Profunda e Modelos Generativos",periodo:7,cht:30,chp:15,chd:0,che:0,total:45,prereqs:["31","36"],coreqs:[], area:AREAS.IA         },
+  { id:"46", nome:"Redes de Comunicações II",             periodo:7, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
+  { id:"47", nome:"Segurança de Sistemas Computacionais", periodo:7, cht:15,chp:0, chd:30,che:0,total:45,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
+  { id:"48", nome:"Sistemas Computacionais em Tempo Real",periodo:7, cht:15,chp:30,chd:0,che:0, total:45,  prereqs:["42"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"49", nome:"Sistemas e Controle",                  periodo:7, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["40"],        coreqs:[], area:AREAS.HARDWARE  },
+  { id:"50", nome:"Ativ. Curriculares de Extensão IV",    periodo:7, cht:0, chp:0, chd:0,che:60,total:60,  prereqs:["44"],        coreqs:[], area:AREAS.EXTENSAO  },
+  // 8º
+  { id:"51", nome:"Engenharia Econômica",                 periodo:8, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.SOFTWARE  },
+  { id:"52", nome:"Arquitetura de Software Aplicada",     periodo:8, cht:15,chp:45,chd:0,che:0, total:60,  prereqs:["35","41"],   coreqs:[], area:AREAS.SOFTWARE  },
+  { id:"53", nome:"Engenharia de Contexto em IA Generativa",periodo:8,cht:15,chp:0,chd:30,che:0,total:45, prereqs:["45"],        coreqs:[], area:AREAS.IA        },
+  { id:"54", nome:"IA Aplicada à Cibersegurança",         periodo:8, cht:15,chp:0, chd:30,che:0,total:45,  prereqs:["45","47"],   coreqs:[], area:AREAS.IA        },
+  { id:"55", nome:"Sistemas Distribuídos",                periodo:8, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
+  { id:"56", nome:"Memorial de Ativ. de Extensão",        periodo:8, cht:0, chp:0, chd:0,che:30,total:30,  prereqs:["50"],        coreqs:[], area:AREAS.EXTENSAO  },
+  // Multi
+  { id:"57", nome:"Disciplinas Optativas",                periodo:"multi",cht:0,chp:0,chd:0,che:0,total:90,  prereqs:[],coreqs:[], area:AREAS.OPTATIVA },
+  { id:"58", nome:"Atividades Acadêmicas Complementares", periodo:"multi",cht:0,chp:0,chd:0,che:0,total:90,  prereqs:[],coreqs:[], area:AREAS.EXTENSAO },
+  { id:"59", nome:"Atividade de Conclusão de Curso",      periodo:"multi",cht:0,chp:0,chd:0,che:0,total:300, prereqs:[],coreqs:[], area:AREAS.COMPUTACAO},
+];
+
+const CURSO = {
+  chObrigatorias: 1875, chExtensao: 345,
+  chOptativas: 90, chComplementares: 90, chTCC: 300, chTotal: 3450,
+};
+
+const dMap = Object.fromEntries(disciplinas.map(d => [d.id, d]));
+
+const AREA_DOT = {
+  [AREAS.MATEMATICA]: "dot-mat", [AREAS.FISICA]: "dot-fis",
+  [AREAS.COMPUTACAO]: "dot-com", [AREAS.HARDWARE]: "dot-hw",
+  [AREAS.IA]:         "dot-ia",  [AREAS.REDES]:    "dot-red",
+  [AREAS.SOFTWARE]:   "dot-sof", [AREAS.EXTENSAO]: "dot-ext",
+  [AREAS.OPTATIVA]:   "dot-opt",
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+const cursadas  = new Set();
+const planejadas = new Set();
+let activeFilter = "all";
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem("ecp_cursadas");
+    if (raw) JSON.parse(raw).forEach(id => cursadas.add(id));
+    const raw2 = localStorage.getItem("ecp_planejadas");
+    if (raw2) JSON.parse(raw2).forEach(id => planejadas.add(id));
+  } catch {}
+}
+
+function saveState() {
+  localStorage.setItem("ecp_cursadas",   JSON.stringify([...cursadas]));
+  localStorage.setItem("ecp_planejadas", JSON.stringify([...planejadas]));
+}
+
+function getStatus(id) {
+  if (cursadas.has(id))   return "concluida";
+  if (planejadas.has(id)) return "planejada";
+  const d = dMap[id];
+  if (!d) return "bloqueada";
+  return d.prereqs.every(p => cursadas.has(p)) ? "disponivel" : "bloqueada";
+}
+
+function getDependentes(id) {
+  return disciplinas.filter(d => d.prereqs.includes(id)).map(d => d.id);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════ */
+const grid = document.getElementById("grid");
+
+function buildGrid() {
+  grid.innerHTML = "";
+  const periodos = [1,2,3,4,5,6,7,8];
+  for (const p of periodos) {
+    const col = document.createElement("div");
+    col.className = "col";
+    col.innerHTML = `<div class="col-header">${p}º Período</div>`;
+    const discs = disciplinas.filter(d => d.periodo === p);
+    for (const d of discs) col.appendChild(makeCard(d));
+    grid.appendChild(col);
+  }
+  // Multi
+  const colM = document.createElement("div");
+  colM.className = "col col-multi";
+  colM.innerHTML = `<div class="col-header">Multi-período</div>`;
+  disciplinas.filter(d => d.periodo === "multi").forEach(d => colM.appendChild(makeCard(d)));
+  grid.appendChild(colM);
+}
+
+function makeCard(d) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.dataset.id = d.id;
+  el.dataset.area = d.area;
+
+  const depCount = getDependentes(d.id).length;
+
+  el.innerHTML = `
+    <span class="card-area-dot ${AREA_DOT[d.area] || ''}"></span>
+    <div class="card-name">${d.nome}</div>
+    <div class="card-meta">
+      <span class="card-ch">${d.total}h</span>
+      <div class="card-badges">
+        ${d.coreqs.length ? `<span class="badge-coreq" title="Tem correquisito">⋆</span>` : ""}
+        ${depCount > 0 ? `<span class="badge-dep">+${depCount}</span>` : ""}
+        <span class="badge-check" style="display:none">
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="2,5 4,7 8,3"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+    ${d.prereqs.length === 0 && d.periodo !== "multi" ? '' :
+      `<div class="card-lock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>`
+    }
+  `;
+
+  el.addEventListener("click", () => onCardClick(d.id));
+  el.addEventListener("contextmenu", e => { e.preventDefault(); onCardRightClick(d.id); });
+  el.addEventListener("mouseenter", e => onCardHover(d.id, e));
+  el.addEventListener("mouseleave", () => onCardLeave(d.id));
+  el.addEventListener("mousemove", e => moveTooltip(e));
+
+  return el;
+}
+
+function updateCard(id) {
+  const el = document.querySelector(`.card[data-id="${id}"]`);
+  if (!el) return;
+  const st = getStatus(id);
+  el.dataset.status = st;
+
+  const check = el.querySelector(".badge-check");
+  const lock  = el.querySelector(".card-lock");
+  if (check) check.style.display = st === "concluida" ? "flex" : "none";
+  if (lock)  lock.style.display  = st === "bloqueada"  ? "block" : "none";
+}
+
+function updateAll() {
+  disciplinas.forEach(d => updateCard(d.id));
+  updateProgress();
+  applyFilter(activeFilter);
+}
+
+function updateProgress() {
+  const total = disciplinas.filter(d => d.periodo !== "multi").length;
+  const done  = [...cursadas].filter(id => dMap[id]?.periodo !== "multi").length;
+  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById("prog-label").textContent = `${done} / ${total}`;
+  document.getElementById("prog-fill").style.width  = pct + "%";
+  document.getElementById("prog-pct").textContent   = pct + "%";
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INTERACTIONS
+═══════════════════════════════════════════════════════════════ */
+function onCardClick(id) {
+  const st = getStatus(id);
+  if (st === "bloqueada") {
+    const d = dMap[id];
+    const missing = d.prereqs.filter(p => !cursadas.has(p)).map(p => dMap[p]?.nome || p);
+    showToast(`Pré-requisito faltando: ${missing.join(", ")}`);
+    return;
+  }
+  if (st === "concluida") {
+    cursadas.delete(id);
+    planejadas.delete(id);
+  } else {
+    cursadas.add(id);
+    planejadas.delete(id);
+  }
+  saveState();
+  updateAll();
+}
+
+function onCardRightClick(id) {
+  const st = getStatus(id);
+  if (st === "bloqueada" || st === "concluida") return;
+  if (planejadas.has(id)) {
+    planejadas.delete(id);
+    showToast("Removido do planejamento");
+  } else {
+    planejadas.add(id);
+    showToast("Adicionado ao planejamento");
+  }
+  saveState();
+  updateAll();
+}
+
+function onCardHover(id, e) {
+  const deps = getDependentes(id);
+
+  document.querySelectorAll(".card").forEach(el => {
+    const eid = el.dataset.id;
+    if (eid === id) return;
+    if (deps.includes(eid) || (dMap[eid]?.prereqs || []).includes(id)) {
+      el.classList.add("destaque");
+      el.classList.remove("dimmed");
+    } else {
+      el.classList.add("dimmed");
+      el.classList.remove("destaque");
+    }
+  });
+
+  showTooltip(id, e);
+}
+
+function onCardLeave(id) {
+  document.querySelectorAll(".card").forEach(el => {
+    el.classList.remove("destaque", "dimmed");
+  });
+  hideTooltip();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════════════════════════════ */
+const tooltip = document.getElementById("tooltip");
+
+function showTooltip(id, e) {
+  const d = dMap[id];
+  const st = getStatus(id);
+  const deps = getDependentes(id);
+
+  let prereqsHtml = "";
+  if (d.prereqs.length) {
+    const items = d.prereqs.map(pid => {
+      const ok = cursadas.has(pid);
+      return `<div class="tt-prereq-item ${ok ? 'ok' : 'missing'}">${ok ? "✓" : "✗"} ${dMap[pid]?.nome || pid}</div>`;
+    }).join("");
+    prereqsHtml = `<div class="tt-prereqs"><strong>Pré-requisitos</strong>${items}</div>`;
+  }
+
+  let coreqsHtml = "";
+  if (d.coreqs.length) {
+    const items = d.coreqs.map(cid => `<div class="tt-prereq-item">⋆ ${dMap[cid]?.nome || cid}</div>`).join("");
+    coreqsHtml = `<div class="tt-coreqs"><strong>Correquisitos</strong>${items}</div>`;
+  }
+
+  let depsHtml = "";
+  if (deps.length) {
+    depsHtml = `<div class="tt-prereqs"><strong>Libera (${deps.length})</strong>${deps.map(did => `<div class="tt-prereq-item">${dMap[did]?.nome || did}</div>`).join("")}</div>`;
+  }
+
+  const statusLabel = { concluida:"Concluída", disponivel:"Disponível", bloqueada:"Bloqueada", planejada:"Planejada" }[st] || st;
+
+  tooltip.innerHTML = `
+    <div class="tt-name">${d.nome}</div>
+    <div class="tt-area">${d.area} · ${statusLabel}</div>
+    <div class="tt-divider"></div>
+    <div class="tt-row"><span>Total</span><span>${d.total}h</span></div>
+    <div class="tt-row"><span>Teórica</span><span>${d.cht}h</span></div>
+    <div class="tt-row"><span>Prática</span><span>${d.chp}h</span></div>
+    ${d.chd ? `<div class="tt-row"><span>EaD</span><span>${d.chd}h</span></div>` : ""}
+    ${d.che ? `<div class="tt-row"><span>Extensão</span><span>${d.che}h</span></div>` : ""}
+    ${prereqsHtml}${coreqsHtml}${depsHtml}
+    <div class="tt-hint">${st === "disponivel" ? "clique para marcar · botão direito para planejar" : st === "concluida" ? "clique para desmarcar" : st === "planejada" ? "clique para concluir · dir. para remover plano" : ""}</div>
+  `;
+
+  tooltip.classList.add("visible");
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  let x = e.clientX + 14;
+  let y = e.clientY + 14;
+  if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - 14;
+  if (y + th > window.innerHeight - 8) y = e.clientY - th - 14;
+  tooltip.style.left = x + "px";
+  tooltip.style.top  = y + "px";
+}
+
+function hideTooltip() {
+  tooltip.classList.remove("visible");
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════════════════════════ */
+function applyFilter(area) {
+  activeFilter = area;
+  document.querySelectorAll(".card").forEach(el => {
+    if (area === "all" || el.dataset.area === area) {
+      el.classList.remove("dimmed");
+    } else {
+      el.classList.add("dimmed");
+    }
+  });
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.toggle("active", c.dataset.filter === area);
+  });
+}
+
+document.querySelectorAll(".chip").forEach(c => {
+  c.addEventListener("click", () => applyFilter(c.dataset.filter));
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   HORAS PANEL
+═══════════════════════════════════════════════════════════════ */
+const panelOverlay = document.getElementById("panel-overlay");
+const panelRows    = document.getElementById("panel-rows");
+
+function calcCH() {
+  let obrig = 0, ext = 0;
+  for (const id of cursadas) {
+    const d = dMap[id];
+    if (!d || d.periodo === "multi") continue;
+    obrig += d.cht + d.chp + d.chd;
+    ext   += d.che;
+  }
+  return { obrig, ext };
+}
+
+function openPanel() {
+  const { obrig, ext } = calcCH();
+  const rows = [
+    { label: "Obrigatórias",       done: obrig, total: CURSO.chObrigatorias },
+    { label: "Extensão",           done: ext,   total: CURSO.chExtensao     },
+    { label: "Optativas (manual)", done: 0,     total: CURSO.chOptativas    },
+    { label: "Ativ. Complementar", done: 0,     total: CURSO.chComplementares },
+    { label: "TCC",                done: 0,     total: CURSO.chTCC          },
+  ];
+  panelRows.innerHTML = rows.map(r => {
+    const pct = Math.min(100, Math.round(r.done / r.total * 100));
+    return `
+      <div class="panel-row">
+        <span class="panel-row-label">${r.label}</span>
+        <div class="panel-row-bar"><div class="panel-row-fill" style="width:${pct}%"></div></div>
+        <span class="panel-row-nums"><em>${r.done}</em> / ${r.total}h</span>
+      </div>
+    `;
+  }).join("") + `
+    <div class="panel-row" style="margin-top:8px;border-top:1px solid #2a3148;padding-top:14px;">
+      <span class="panel-row-label" style="font-weight:600;color:#e2e8f0">Total estimado</span>
+      <div class="panel-row-bar"><div class="panel-row-fill" style="width:${Math.round((obrig+ext)/CURSO.chTotal*100)}%"></div></div>
+      <span class="panel-row-nums"><em>${obrig+ext}</em> / ${CURSO.chTotal}h</span>
+    </div>
+  `;
+  panelOverlay.classList.add("open");
+}
+
+document.getElementById("btn-horas").addEventListener("click", openPanel);
+document.getElementById("panel-close").addEventListener("click", () => panelOverlay.classList.remove("open"));
+panelOverlay.addEventListener("click", e => { if (e.target === panelOverlay) panelOverlay.classList.remove("open"); });
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARE
+═══════════════════════════════════════════════════════════════ */
+document.getElementById("btn-compartilhar").addEventListener("click", () => {
+  const ids = [...cursadas].join(",");
+  const url = location.origin + location.pathname + "?c=" + encodeURIComponent(ids);
+  navigator.clipboard.writeText(url).then(() => showToast("Link copiado!")).catch(() => {
+    prompt("Copie o link:", url);
+  });
+});
+
+function loadFromURL() {
+  const params = new URLSearchParams(location.search);
+  const c = params.get("c");
+  if (c) c.split(",").filter(Boolean).forEach(id => { if (dMap[id]) cursadas.add(id); });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════════ */
+document.getElementById("btn-reset").addEventListener("click", () => {
+  if (!confirm("Limpar todo o progresso?")) return;
+  cursadas.clear(); planejadas.clear();
+  saveState();
+  updateAll();
+  showToast("Progresso limpo");
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+loadState();
+loadFromURL();
+buildGrid();
+updateAll();
+
+</script>
+</body>
+</html>
