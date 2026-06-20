@@ -30,9 +30,9 @@
   --c-bloqueada-bd:    #7a2535;
   --c-bloqueada-txt:   #c88;
 
-  --c-planejada-bg:    #131829;
-  --c-planejada-bd:    #4a7fc1;
-  --c-planejada-txt:   #b3cfee;
+  --c-planejada-bg:    #0b2240;
+  --c-planejada-bd:    #3b82f6;
+  --c-planejada-txt:   #bfdbfe;
 
   --c-destaque-bd:     #7c3aed;
   --c-destaque-bg:     #1e1535;
@@ -133,6 +133,7 @@ header {
   cursor: pointer;
   transition: border-color .15s, color .15s, background .15s;
   white-space: nowrap;
+  text-decoration: none;
 }
 .btn-icon:hover {
   border-color: var(--accent);
@@ -140,6 +141,14 @@ header {
   background: #1e1535;
 }
 .btn-icon svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.btn-icon.compact {
+  width: 34px;
+  height: 34px;
+  justify-content: center;
+  padding: 0;
+  font-weight: 700;
+}
 
 /* ── Filter bar ─────────────────────────────────────────────────── */
 .filter-bar {
@@ -245,6 +254,14 @@ header {
 
 .grid {
   display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  min-width: max-content;
+}
+
+.period-grid {
+  display: flex;
   gap: var(--col-gap);
   align-items: flex-start;
   min-width: max-content;
@@ -280,6 +297,23 @@ header {
 
 /* Multi-period column */
 .col-multi { width: 160px; }
+
+.extension-band {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.extension-cards {
+  display: flex;
+  gap: var(--card-gap);
+  align-items: flex-start;
+}
+
+.extension-cards .card {
+  width: var(--card-w);
+  flex: 0 0 var(--card-w);
+}
 
 /* ── Cards ──────────────────────────────────────────────────────── */
 .card {
@@ -322,11 +356,8 @@ header {
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(0,0,0,.4);
 }
-.card[data-status="bloqueada"] { cursor: default; }
-.card[data-status="bloqueada"]:hover {
-  transform: none;
-  box-shadow: none;
-}
+.card[data-status="bloqueada"] { cursor: pointer; }
+.card[data-status="bloqueada"] .card-badges { padding-right: 16px; }
 
 .card-name {
   font-size: 11px;
@@ -490,7 +521,7 @@ header {
 }
 .panel-overlay.open {
   opacity: 1;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .panel {
@@ -562,6 +593,22 @@ header {
 }
 .panel-close:hover { border-color: var(--accent); color: var(--accent2); }
 
+.manual-text {
+  display: grid;
+  gap: 10px;
+}
+
+.manual-text p {
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.manual-text strong {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
 /* ── Area colors (dot) ────────────────────────────────────────────── */
 .dot-mat { background: #60a5fa; }
 .dot-fis { background: #f472b6; }
@@ -572,6 +619,7 @@ header {
 .dot-sof { background: #facc15; }
 .dot-ext { background: #94a3b8; }
 .dot-opt { background: #475569; }
+.dot-ges { background: #f87171; }
 
 /* ── Toast ───────────────────────────────────────────────────────── */
 #toast {
@@ -645,6 +693,14 @@ header {
     </svg>
     Compartilhar
   </button>
+
+  <a class="btn-icon" id="btn-pdf" href="fluxo_curso_ecp_ppc_2026-1.pdf" target="_blank" rel="noopener" title="Abrir PDF original">
+    PDF
+  </a>
+
+  <button class="btn-icon compact" id="btn-ajuda" title="Como funciona" aria-label="Como funciona">
+    ?
+  </button>
 </header>
 
 <!-- ── Filter bar ── -->
@@ -658,6 +714,7 @@ header {
   <button class="chip" data-filter="Inteligência Artificial"><span class="chip-dot dot-ia"></span>IA</button>
   <button class="chip" data-filter="Redes e Comunicações"><span class="chip-dot dot-red"></span>Redes</button>
   <button class="chip" data-filter="Engenharia de Software"><span class="chip-dot dot-sof"></span>Software</button>
+  <button class="chip" data-filter="Gestão e Negócios"><span class="chip-dot dot-ges"></span>Gestão</button>
   <button class="chip" data-filter="Extensão"><span class="chip-dot dot-ext"></span>Extensão</button>
 </div>
 
@@ -667,9 +724,9 @@ header {
     <span class="legend-item"><span class="legend-swatch ls-disponivel"></span>Disponível</span>
     <span class="legend-item"><span class="legend-swatch ls-concluida"></span>Concluída</span>
     <span class="legend-item"><span class="legend-swatch ls-bloqueada"></span>Bloqueada</span>
-    <span class="legend-item"><span class="legend-swatch ls-planejada"></span>Planejada</span>
+    <span class="legend-item"><span class="legend-swatch ls-planejada"></span>Cursando</span>
     <span class="legend-item" style="color:#64748b;font-size:10px;margin-left:4px">
-      clique direito = planejar · hover = destacar dependências
+      clique direito = cursando · hover = destacar dependências
     </span>
   </div>
   <div class="controls-spacer"></div>
@@ -690,107 +747,41 @@ header {
   </div>
 </div>
 
+<!-- Manual -->
+<div class="panel-overlay" id="manual-overlay">
+  <div class="panel">
+    <div class="panel-title">Como usar</div>
+    <div class="manual-text">
+      <p><strong>Clique</strong> em uma disciplina para marcar ou desmarcar como concluída.</p>
+      <p><strong>Clique direito</strong> marca uma disciplina disponível como cursando.</p>
+      <p><strong>Bloqueada</strong> indica pré-requisito pendente. Se você já cumpriu por equivalência ou por outra grade, dá para marcar mesmo assim, com confirmação.</p>
+      <p><strong>Hover</strong> destaca as disciplinas liberadas e mostra pré-requisitos, correquisitos e carga horária.</p>
+      <p>As atividades curriculares de extensão ficam separadas no fim do fluxograma.</p>
+    </div>
+    <button class="panel-close" id="manual-close">Entendi</button>
+  </div>
+</div>
+
 <!-- ── Tooltip ── -->
 <div id="tooltip"></div>
 
 <!-- ── Toast ── -->
 <div id="toast"></div>
 
+<script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════════════════════════ */
-const AREAS = {
-  MATEMATICA: "Matemática", FISICA: "Física", COMPUTACAO: "Computação",
-  HARDWARE: "Hardware", IA: "Inteligência Artificial",
-  REDES: "Redes e Comunicações", SOFTWARE: "Engenharia de Software",
-  EXTENSAO: "Extensão", OPTATIVA: "Optativa",
-};
-
-const disciplinas = [
-  // 1º
-  { id:"01", nome:"Cálculo Diferencial e Integral I",     periodo:1, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
-  { id:"02", nome:"Geometria Analítica",                  periodo:1, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
-  { id:"03", nome:"Introdução à Engenharia de Computação",periodo:1, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"04", nome:"Introdução à Prototipagem Eletrônica", periodo:1, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.HARDWARE  },
-  { id:"05", nome:"Lógica e Matemática Discreta",         periodo:1, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
-  { id:"06", nome:"Programação Script",                   periodo:1, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.COMPUTACAO },
-  // 2º
-  { id:"07", nome:"Álgebra Linear",                       periodo:2, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:[],            coreqs:[], area:AREAS.MATEMATICA },
-  { id:"08", nome:"Cálculo Diferencial e Integral II",    periodo:2, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:["01"],        coreqs:[], area:AREAS.MATEMATICA },
-  { id:"09", nome:"Física Básica: Mecânica",              periodo:2, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["01"],        coreqs:[], area:AREAS.FISICA    },
-  { id:"10", nome:"Física Básica: Mecânica (Exp.)",       periodo:2, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],         coreqs:["09"], area:AREAS.FISICA    },
-  { id:"11", nome:"Metrologia",                           periodo:2, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:[],            coreqs:[], area:AREAS.HARDWARE  },
-  { id:"12", nome:"Programação Procedimental",            periodo:2, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:["06"],        coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"13", nome:"Sistemas Digitais",                    periodo:2, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:["05"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"14", nome:"Sistemas Digitais (Exp.)",             periodo:2, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:[],         coreqs:["13"], area:AREAS.HARDWARE  },
-  // 3º
-  { id:"15", nome:"Cálculo Diferencial e Integral III",   periodo:3, cht:90,chp:0, chd:0,che:0, total:90,  prereqs:["08"],        coreqs:[], area:AREAS.MATEMATICA },
-  { id:"16", nome:"Física Básica: Eletricidade e Magnetismo", periodo:3,cht:60,chp:0,chd:0,che:0,total:60, prereqs:["09"],     coreqs:["17"], area:AREAS.FISICA    },
-  { id:"17", nome:"Física Básica: Eletricidade e Magnetismo (Exp.)", periodo:3,cht:0,chp:30,chd:0,che:0,total:30, prereqs:[], coreqs:["16"], area:AREAS.FISICA    },
-  { id:"18", nome:"Elementos de Sistemas Computacionais", periodo:3, cht:30,chp:0, chd:30,che:0,total:60,  prereqs:["13"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"19", nome:"Estrutura de Dados",                   periodo:3, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"20", nome:"IA, Ética e Sociedade",                periodo:3, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.IA        },
-  { id:"21", nome:"Programação Funcional",                periodo:3, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"22", nome:"Programação Orientada a Objetos",      periodo:3, cht:30,chp:30,chd:0,che:0, total:60,  prereqs:["12"],        coreqs:[], area:AREAS.COMPUTACAO },
-  // 4º
-  { id:"23", nome:"Estatística",                          periodo:4, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["15"],        coreqs:[], area:AREAS.MATEMATICA },
-  { id:"24", nome:"Métodos Matemáticos",                  periodo:4, cht:75,chp:0, chd:0,che:0, total:75,  prereqs:["15"],        coreqs:[], area:AREAS.MATEMATICA },
-  { id:"25", nome:"Análise de Algoritmos",                periodo:4, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["19"],        coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"26", nome:"Arquitetura e Organização de Computadores", periodo:4,cht:60,chp:0,chd:0,che:0,total:60,prereqs:["18"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"27", nome:"Banco de Dados",                       periodo:4, cht:15,chp:45,chd:0,che:0, total:60,  prereqs:["19"],        coreqs:[], area:AREAS.SOFTWARE  },
-  { id:"28", nome:"Circuitos Eletro-Elétricos I",         periodo:4, cht:75,chp:0, chd:0,che:0, total:75,  prereqs:["16"],     coreqs:["29"], area:AREAS.HARDWARE  },
-  { id:"29", nome:"Circuitos Eletro-Elétricos I (Exp.)",  periodo:4, cht:0, chp:15,chd:0,che:0, total:15,  prereqs:["11"],     coreqs:["28"], area:AREAS.HARDWARE  },
-  { id:"30", nome:"Ativ. Curriculares de Extensão I",     periodo:4, cht:0, chp:0, chd:0,che:90,total:90,  prereqs:[],            coreqs:[], area:AREAS.EXTENSAO  },
-  // 5º
-  { id:"31", nome:"Cálculo Numérico",                     periodo:5, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["07","15"],   coreqs:[], area:AREAS.MATEMATICA },
-  { id:"32", nome:"Empreendedorismo e Inovação",          periodo:5, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.SOFTWARE  },
-  { id:"33", nome:"Eletrônica Analógica I",               periodo:5, cht:60,chp:0, chd:0,che:0, total:60,  prereqs:["28"],     coreqs:["34"], area:AREAS.HARDWARE  },
-  { id:"34", nome:"Eletrônica Analógica I (Exp.)",        periodo:5, cht:0, chp:30,chd:0,che:0, total:30,  prereqs:["33"],     coreqs:["33"], area:AREAS.HARDWARE  },
-  { id:"35", nome:"Engenharia de Software",               periodo:5, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["22","27"],   coreqs:[], area:AREAS.SOFTWARE  },
-  { id:"36", nome:"Fundamentos da Inteligência Artificial",periodo:5,cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["23"],        coreqs:[], area:AREAS.IA        },
-  { id:"37", nome:"Sistemas Operacionais",                periodo:5, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["12","26"],   coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"38", nome:"Ativ. Curriculares de Extensão II",    periodo:5, cht:0, chp:0, chd:0,che:90,total:90,  prereqs:["30"],        coreqs:[], area:AREAS.EXTENSAO  },
-  // 6º
-  { id:"39", nome:"Aprendizagem de Máquina",              periodo:6, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["07","15","36"],coreqs:[], area:AREAS.IA       },
-  { id:"40", nome:"Processamento Digital de Sinais",      periodo:6, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["24"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"41", nome:"Redes de Comunicações I",              periodo:6, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["37"],        coreqs:[], area:AREAS.REDES     },
-  { id:"42", nome:"Sistemas Embarcados I",                periodo:6, cht:45,chp:30,chd:0,che:0, total:75,  prereqs:["26","33","37"],coreqs:[], area:AREAS.HARDWARE },
-  { id:"43", nome:"Teoria da Computação",                 periodo:6, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["25"],        coreqs:[], area:AREAS.COMPUTACAO },
-  { id:"44", nome:"Ativ. Curriculares de Extensão III",   periodo:6, cht:0, chp:0, chd:0,che:75,total:75,  prereqs:["38"],        coreqs:[], area:AREAS.EXTENSAO  },
-  // 7º
-  { id:"45", nome:"Aprendizagem Profunda e Modelos Generativos",periodo:7,cht:30,chp:15,chd:0,che:0,total:45,prereqs:["31","36"],coreqs:[], area:AREAS.IA         },
-  { id:"46", nome:"Redes de Comunicações II",             periodo:7, cht:45,chp:15,chd:0,che:0, total:60,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
-  { id:"47", nome:"Segurança de Sistemas Computacionais", periodo:7, cht:15,chp:0, chd:30,che:0,total:45,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
-  { id:"48", nome:"Sistemas Computacionais em Tempo Real",periodo:7, cht:15,chp:30,chd:0,che:0, total:45,  prereqs:["42"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"49", nome:"Sistemas e Controle",                  periodo:7, cht:30,chp:15,chd:0,che:0, total:45,  prereqs:["40"],        coreqs:[], area:AREAS.HARDWARE  },
-  { id:"50", nome:"Ativ. Curriculares de Extensão IV",    periodo:7, cht:0, chp:0, chd:0,che:60,total:60,  prereqs:["44"],        coreqs:[], area:AREAS.EXTENSAO  },
-  // 8º
-  { id:"51", nome:"Engenharia Econômica",                 periodo:8, cht:30,chp:0, chd:0,che:0, total:30,  prereqs:[],            coreqs:[], area:AREAS.SOFTWARE  },
-  { id:"52", nome:"Arquitetura de Software Aplicada",     periodo:8, cht:15,chp:45,chd:0,che:0, total:60,  prereqs:["35","41"],   coreqs:[], area:AREAS.SOFTWARE  },
-  { id:"53", nome:"Engenharia de Contexto em IA Generativa",periodo:8,cht:15,chp:0,chd:30,che:0,total:45, prereqs:["45"],        coreqs:[], area:AREAS.IA        },
-  { id:"54", nome:"IA Aplicada à Cibersegurança",         periodo:8, cht:15,chp:0, chd:30,che:0,total:45,  prereqs:["45","47"],   coreqs:[], area:AREAS.IA        },
-  { id:"55", nome:"Sistemas Distribuídos",                periodo:8, cht:45,chp:0, chd:0,che:0, total:45,  prereqs:["41"],        coreqs:[], area:AREAS.REDES     },
-  { id:"56", nome:"Memorial de Ativ. de Extensão",        periodo:8, cht:0, chp:0, chd:0,che:30,total:30,  prereqs:["50"],        coreqs:[], area:AREAS.EXTENSAO  },
-  // Multi
-  { id:"57", nome:"Disciplinas Optativas",                periodo:"multi",cht:0,chp:0,chd:0,che:0,total:90,  prereqs:[],coreqs:[], area:AREAS.OPTATIVA },
-  { id:"58", nome:"Atividades Acadêmicas Complementares", periodo:"multi",cht:0,chp:0,chd:0,che:0,total:90,  prereqs:[],coreqs:[], area:AREAS.EXTENSAO },
-  { id:"59", nome:"Atividade de Conclusão de Curso",      periodo:"multi",cht:0,chp:0,chd:0,che:0,total:300, prereqs:[],coreqs:[], area:AREAS.COMPUTACAO},
-];
-
-const CURSO = {
-  chObrigatorias: 1875, chExtensao: 345,
-  chOptativas: 90, chComplementares: 90, chTCC: 300, chTotal: 3450,
-};
-
-const dMap = Object.fromEntries(disciplinas.map(d => [d.id, d]));
+// ponte para o data.js
+const dMap = disciplinaMap;
 
 const AREA_DOT = {
   [AREAS.MATEMATICA]: "dot-mat", [AREAS.FISICA]: "dot-fis",
   [AREAS.COMPUTACAO]: "dot-com", [AREAS.HARDWARE]: "dot-hw",
   [AREAS.IA]:         "dot-ia",  [AREAS.REDES]:    "dot-red",
   [AREAS.SOFTWARE]:   "dot-sof", [AREAS.EXTENSAO]: "dot-ext",
-  [AREAS.OPTATIVA]:   "dot-opt",
+  [AREAS.OPTATIVA]:   "dot-opt", [AREAS.GESTAO]: "dot-ges",
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -819,11 +810,44 @@ function getStatus(id) {
   if (planejadas.has(id)) return "planejada";
   const d = dMap[id];
   if (!d) return "bloqueada";
-  return d.prereqs.every(p => cursadas.has(p)) ? "disponivel" : "bloqueada";
+  return isDisciplinaDisponivel(d) ? "disponivel" : "bloqueada";
+}
+
+function prereqsOk(d, ignoredId = null) {
+  return d.prereqs.every(p => p === ignoredId || cursadas.has(p));
+}
+
+function isDisciplinaDisponivel(d) {
+  if (!prereqsOk(d)) return false;
+  return d.coreqs.every(cid => {
+    const coreq = dMap[cid];
+    return !coreq || cursadas.has(cid) || prereqsOk(coreq, d.id);
+  });
+}
+
+function getPendencias(d) {
+  const items = d.prereqs
+    .filter(pid => !cursadas.has(pid))
+    .map(pid => dMap[pid]?.nome || pid);
+
+  d.coreqs.forEach(cid => {
+    const coreq = dMap[cid];
+    if (!coreq || cursadas.has(cid) || prereqsOk(coreq, d.id)) return;
+    const missing = coreq.prereqs
+      .filter(pid => pid !== d.id && !cursadas.has(pid))
+      .map(pid => dMap[pid]?.nome || pid);
+    items.push(`${coreq.nome}: ${missing.join(", ")}`);
+  });
+
+  return items;
 }
 
 function getDependentes(id) {
   return disciplinas.filter(d => d.prereqs.includes(id)).map(d => d.id);
+}
+
+function isExtensaoCurricular(d) {
+  return d.che > 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -833,21 +857,33 @@ const grid = document.getElementById("grid");
 
 function buildGrid() {
   grid.innerHTML = "";
+  const periodGrid = document.createElement("div");
+  periodGrid.className = "period-grid";
   const periodos = [1,2,3,4,5,6,7,8];
   for (const p of periodos) {
     const col = document.createElement("div");
     col.className = "col";
     col.innerHTML = `<div class="col-header">${p}º Período</div>`;
-    const discs = disciplinas.filter(d => d.periodo === p);
+    const discs = disciplinas.filter(d => d.periodo === p && !isExtensaoCurricular(d));
     for (const d of discs) col.appendChild(makeCard(d));
-    grid.appendChild(col);
+    periodGrid.appendChild(col);
   }
   // Multi
   const colM = document.createElement("div");
   colM.className = "col col-multi";
   colM.innerHTML = `<div class="col-header">Multi-período</div>`;
   disciplinas.filter(d => d.periodo === "multi").forEach(d => colM.appendChild(makeCard(d)));
-  grid.appendChild(colM);
+  periodGrid.appendChild(colM);
+  grid.appendChild(periodGrid);
+
+  const extensionBand = document.createElement("div");
+  extensionBand.className = "extension-band";
+  extensionBand.innerHTML = `<div class="col-header">Atividades Curriculares de Extensão</div>`;
+  const extensionCards = document.createElement("div");
+  extensionCards.className = "extension-cards";
+  disciplinas.filter(isExtensaoCurricular).forEach(d => extensionCards.appendChild(makeCard(d)));
+  extensionBand.appendChild(extensionCards);
+  grid.appendChild(extensionBand);
 }
 
 function makeCard(d) {
@@ -926,9 +962,10 @@ function onCardClick(id) {
   const st = getStatus(id);
   if (st === "bloqueada") {
     const d = dMap[id];
-    const missing = d.prereqs.filter(p => !cursadas.has(p)).map(p => dMap[p]?.nome || p);
-    showToast(`Pré-requisito faltando: ${missing.join(", ")}`);
-    return;
+    const missing = getPendencias(d);
+    const detail = missing.length ? `\n\nPré-requisito pendente: ${missing.join(", ")}` : "";
+    if (!confirm(`Marcar "${d.nome}" como concluída mesmo sem os pré-requisitos?${detail}`)) return;
+    showToast("Marcada como concluída por equivalência/grade anterior");
   }
   if (st === "concluida") {
     cursadas.delete(id);
@@ -946,10 +983,10 @@ function onCardRightClick(id) {
   if (st === "bloqueada" || st === "concluida") return;
   if (planejadas.has(id)) {
     planejadas.delete(id);
-    showToast("Removido do planejamento");
+    showToast("Removido de cursando");
   } else {
     planejadas.add(id);
-    showToast("Adicionado ao planejamento");
+    showToast("Marcado como cursando");
   }
   saveState();
   updateAll();
@@ -1010,7 +1047,7 @@ function showTooltip(id, e) {
     depsHtml = `<div class="tt-prereqs"><strong>Libera (${deps.length})</strong>${deps.map(did => `<div class="tt-prereq-item">${dMap[did]?.nome || did}</div>`).join("")}</div>`;
   }
 
-  const statusLabel = { concluida:"Concluída", disponivel:"Disponível", bloqueada:"Bloqueada", planejada:"Planejada" }[st] || st;
+  const statusLabel = { concluida:"Concluída", disponivel:"Disponível", bloqueada:"Bloqueada", planejada:"Cursando" }[st] || st;
 
   tooltip.innerHTML = `
     <div class="tt-name">${d.nome}</div>
@@ -1022,7 +1059,7 @@ function showTooltip(id, e) {
     ${d.chd ? `<div class="tt-row"><span>EaD</span><span>${d.chd}h</span></div>` : ""}
     ${d.che ? `<div class="tt-row"><span>Extensão</span><span>${d.che}h</span></div>` : ""}
     ${prereqsHtml}${coreqsHtml}${depsHtml}
-    <div class="tt-hint">${st === "disponivel" ? "clique para marcar · botão direito para planejar" : st === "concluida" ? "clique para desmarcar" : st === "planejada" ? "clique para concluir · dir. para remover plano" : ""}</div>
+    <div class="tt-hint">${st === "disponivel" ? "clique para marcar · botão direito para cursando" : st === "concluida" ? "clique para desmarcar" : st === "planejada" ? "clique para concluir · dir. para remover cursando" : st === "bloqueada" ? "clique para marcar mesmo sem pré-requisito" : ""}</div>
   `;
 
   tooltip.classList.add("visible");
@@ -1115,6 +1152,25 @@ document.getElementById("panel-close").addEventListener("click", () => panelOver
 panelOverlay.addEventListener("click", e => { if (e.target === panelOverlay) panelOverlay.classList.remove("open"); });
 
 /* ═══════════════════════════════════════════════════════════════
+   MANUAL
+═══════════════════════════════════════════════════════════════ */
+const manualOverlay = document.getElementById("manual-overlay");
+
+function openManual(markSeen = false) {
+  manualOverlay.classList.add("open");
+  if (markSeen) localStorage.setItem("ecp_manual_seen", "1");
+}
+
+function closeManual() {
+  manualOverlay.classList.remove("open");
+  localStorage.setItem("ecp_manual_seen", "1");
+}
+
+document.getElementById("btn-ajuda").addEventListener("click", () => openManual());
+document.getElementById("manual-close").addEventListener("click", closeManual);
+manualOverlay.addEventListener("click", e => { if (e.target === manualOverlay) closeManual(); });
+
+/* ═══════════════════════════════════════════════════════════════
    SHARE
 ═══════════════════════════════════════════════════════════════ */
 document.getElementById("btn-compartilhar").addEventListener("click", () => {
@@ -1161,6 +1217,7 @@ loadState();
 loadFromURL();
 buildGrid();
 updateAll();
+if (!localStorage.getItem("ecp_manual_seen")) openManual(true);
 
 </script>
 </body>
