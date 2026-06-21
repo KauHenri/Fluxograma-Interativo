@@ -1173,10 +1173,10 @@
       <span class="legend-item"><span class="legend-swatch ls-bloqueada"></span>Bloqueada</span>
       <span class="legend-item"><span class="legend-swatch ls-planejada"></span>Cursando</span>
       <span class="legend-item hint-hover-only" style="color:#64748b;font-size:10px;margin-left:4px">
-        clique direito = cursando · hover = destacar dependências
+        clique direito = cursando | hover = destacar dependências
       </span>
       <span class="legend-item" id="hint-mobile" style="color:#64748b;font-size:10px;margin-left:4px;display:none">
-        duplo toque = ver detalhes · clique dir. = cursando (desktop)
+        um toque = concluída | duplo toque = ver detalhes
       </span>
     </div>
     <div class="controls-spacer"></div>
@@ -1208,7 +1208,6 @@
           grade, dá para marcar mesmo assim, com confirmação.</p>
         <p><strong>Hover</strong> (mantendo o mouse por um instante) destaca as dependências e mostra pré-requisitos,
           correquisitos e carga horária.</p>
-        <p>As atividades curriculares de extensão ficam separadas no fim do fluxograma.</p>
       </div>
       <div class="manual-text" id="manual-text-mobile" style="display:none">
         <p><strong>Toque</strong> em uma disciplina para marcar ou desmarcar como concluída.</p>
@@ -1216,7 +1215,6 @@
         </p>
         <p>No painel você pode marcar uma disciplina como <strong>cursando</strong> ou ver o que ela libera.</p>
         <p><strong>Bloqueada</strong> indica pré-requisito pendente. Você pode marcar mesmo assim, com confirmação.</p>
-        <p>As atividades curriculares de extensão ficam separadas no fim do fluxograma.</p>
       </div>
       <button class="panel-close" id="manual-close">Entendi</button>
     </div>
@@ -1394,27 +1392,37 @@
         }
   `;
 
-      // Desktop: click e hover
-      el.addEventListener("click", () => onCardClick(d.id));
-      el.addEventListener("contextmenu", e => { e.preventDefault(); onCardRightClick(d.id); });
-      el.addEventListener("mouseenter", e => onCardHover(d.id, e));
-      el.addEventListener("mouseleave", () => onCardLeave(d.id));
-      el.addEventListener("mousemove", e => moveTooltip(e));
-
-      // Mobile: duplo toque abre o bottom sheet
-      let tapTimer = null;
-      let tapCount = 0;
-      el.addEventListener("touchend", (e) => {
-        tapCount++;
-        if (tapCount === 1) {
-          tapTimer = setTimeout(() => { tapCount = 0; }, 300);
-        } else if (tapCount >= 2) {
-          clearTimeout(tapTimer);
-          tapCount = 0;
-          e.preventDefault(); // evita o click que viria em seguida
-          openSheet(d.id);
-        }
-      }, { passive: false });
+      if (!isTouchDevice) {
+        // ── Desktop: mouse events ──────────────────────────────────
+        el.addEventListener("click", () => onCardClick(d.id));
+        el.addEventListener("contextmenu", e => { e.preventDefault(); onCardRightClick(d.id); });
+        el.addEventListener("mouseenter", e => onCardHover(d.id, e));
+        el.addEventListener("mouseleave", () => onCardLeave(d.id));
+        el.addEventListener("mousemove", e => moveTooltip(e));
+      } else {
+        // ── Mobile: touch events ───────────────────────────────────
+        // Tudo via touchend para ter controle total sobre single/duplo toque.
+        // e.preventDefault() em todos os touchend impede que o browser
+        // gere eventos sintéticos de click/mouseenter/mouseleave.
+        let tapTimer = null;
+        let tapCount = 0;
+        el.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          tapCount++;
+          if (tapCount === 1) {
+            // Aguarda 300ms: se vier segundo toque, abre o painel;
+            // se não vier, executa a ação de marcar.
+            tapTimer = setTimeout(() => {
+              tapCount = 0;
+              onCardClick(d.id);
+            }, 300);
+          } else if (tapCount >= 2) {
+            clearTimeout(tapTimer);
+            tapCount = 0;
+            openSheet(d.id);
+          }
+        }, { passive: false });
+      }
 
       return el;
     }
@@ -1471,22 +1479,32 @@
 
     function onCardRightClick(id) {
       const st = getStatus(id);
-      if (st === "bloqueada" || st === "concluida") return;
+      if (st === "concluida") return;
       if (planejadas.has(id)) {
         planejadas.delete(id);
         showToast("Removido de cursando");
       } else {
+        if (st === "bloqueada") {
+          const d = dMap[id];
+          const missing = getPendencias(d);
+          const detail = missing.length ? `\n\nPré-requisito pendente: ${missing.join(", ")}` : "";
+          if (!confirm(`Marcar "${d.nome}" como cursando mesmo sem os pré-requisitos?${detail}`)) return;
+          showToast("Marcada como cursando por equivalência/grade anterior");
+        } else {
+          showToast("Marcado como cursando");
+        }
         planejadas.add(id);
-        showToast("Marcado como cursando");
       }
       saveState();
       updateAll();
     }
 
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
     let hoverTimer = null;
 
     function onCardHover(id, e) {
-      // Debounce: só ativa highlight/tooltip após 300ms parado no card
+      if (isTouchDevice) return; // hover desativado no mobile
+      // Debounce: só ativa highlight/tooltip após 200ms parado no card
       hoverTimer = setTimeout(() => {
         const deps = getDependentes(id);
         document.querySelectorAll(".card").forEach(el => {
@@ -1501,7 +1519,7 @@
           }
         });
         showTooltip(id, e);
-      }, 500);
+      }, 200);
     }
 
     function onCardLeave(id) {
@@ -1807,7 +1825,7 @@
 
       if (st === "planejada") {
         actionsHtml += `<button class="sheet-btn sheet-btn-cursando" id="sheet-btn-cursando">Remover de cursando</button>`;
-      } else if (st === "disponivel") {
+      } else if (st === "disponivel" || st === "bloqueada") {
         actionsHtml += `<button class="sheet-btn sheet-btn-cursando" id="sheet-btn-cursando">Marcar como cursando</button>`;
       }
 
