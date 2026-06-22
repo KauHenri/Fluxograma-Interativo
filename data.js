@@ -17,16 +17,16 @@
  */
 
 const AREAS = {
-  MATEMATICA:   "Matemática",
-  FISICA:       "Física",
-  COMPUTACAO:   "Computação",
-  HARDWARE:     "Hardware",
-  IA:           "Inteligência Artificial",
-  REDES:        "Redes e Comunicações",
-  SOFTWARE:     "Engenharia de Software",
-  EXTENSAO:     "Extensão",
-  OPTATIVA:     "Optativa",
-  GESTAO:       "Gestão e Negócios",
+  MATEMATICA: "Matemática",
+  FISICA: "Física",
+  COMPUTACAO: "Computação",
+  HARDWARE: "Hardware",
+  IA: "Inteligência Artificial",
+  REDES: "Redes e Comunicações",
+  SOFTWARE: "Engenharia de Software",
+  EXTENSAO: "Extensão",
+  OPTATIVA: "Optativa",
+  GESTAO: "Gestão e Negócios",
 };
 
 const disciplinas = [
@@ -92,7 +92,7 @@ const disciplinas = [
     nome: "Álgebra Linear",
     periodo: 2,
     cht: 45, chp: 0, chd: 0, che: 0, total: 45,
-    prereqs: [],
+    prereqs: ["02"],
     coreqs: [],
     area: AREAS.MATEMATICA,
   },
@@ -240,7 +240,7 @@ const disciplinas = [
     nome: "Estatística",
     periodo: 4,
     cht: 60, chp: 0, chd: 0, che: 0, total: 60,
-    prereqs: ["15"],
+    prereqs: [],
     coreqs: [],
     area: AREAS.MATEMATICA,
   },
@@ -388,7 +388,7 @@ const disciplinas = [
     nome: "Aprendizagem de Máquina",
     periodo: 6,
     cht: 30, chp: 15, chd: 0, che: 0, total: 45,
-    prereqs: ["07", "15", "36"],
+    prereqs: ["31", "36"],
     coreqs: [],
     area: AREAS.IA,
   },
@@ -444,7 +444,7 @@ const disciplinas = [
     nome: "Aprendizagem Profunda e Modelos Generativos",
     periodo: 7,
     cht: 30, chp: 15, chd: 0, che: 0, total: 45,
-    prereqs: ["31", "36"],
+    prereqs: ["39"],
     coreqs: [],
     area: AREAS.IA,
   },
@@ -609,38 +609,38 @@ const disciplinaMap = Object.fromEntries(disciplinas.map(d => [d.id, d]));
  *   - "bloqueada"  : algum prereq faltando
  */
 function calcularStatus(cursadas = new Set()) {
-	const status = {};
+  const status = {};
 
-	// passo 1: inicializa com base apenas nos pre-requisitos
-	for (const d of disciplinas) {
-		if (cursadas.has(d.id)) {
-			status[d.id] = "concluida";
-		} else {
-			const prereqsOk = d.prereqs.every(p => cursadas.has(p));
-			status[d.id] = prereqsOk ? "disponivel" : "bloqueada";
-		}
-	}
+  // passo 1: inicializa com base apenas nos pre-requisitos
+  for (const d of disciplinas) {
+    if (cursadas.has(d.id)) {
+      status[d.id] = "concluida";
+    } else {
+      const prereqsOk = d.prereqs.every(p => cursadas.has(p));
+      status[d.id] = prereqsOk ? "disponivel" : "bloqueada";
+    }
+  }
 
-	// passo 2: valida os co-requisitos de forma iterativa
-	let mudou = true;
-	while (mudou) {
-		mudou = false;
-		for (const d of disciplinas) {
-			if (status[d.id] === "disponivel") {
-				const coreqs = d.coreqs || [];
-				// a disciplina so continua disponivel se todos os co-requisitos dela
-				// tambem estiverem disponiveis ou ja concluidos
-				const coreqsOk = coreqs.every(c => status[c] === "disponivel" || status[c] === "concluida");
-				
-				if (!coreqsOk) {
-					status[d.id] = "bloqueada";
-					mudou = true; // roda de novo para propagar o bloqueio se necessario
-				}
-			}
-		}
-	}
+  // passo 2: valida os co-requisitos de forma iterativa
+  let mudou = true;
+  while (mudou) {
+    mudou = false;
+    for (const d of disciplinas) {
+      if (status[d.id] === "disponivel") {
+        const coreqs = d.coreqs || [];
+        // a disciplina so continua disponivel se todos os co-requisitos dela
+        // tambem estiverem disponiveis ou ja concluidos
+        const coreqsOk = coreqs.every(c => status[c] === "disponivel" || status[c] === "concluida");
 
-	return status;
+        if (!coreqsOk) {
+          status[d.id] = "bloqueada";
+          mudou = true; // roda de novo para propagar o bloqueio se necessario
+        }
+      }
+    }
+  }
+
+  return status;
 }
 
 /**
