@@ -1458,6 +1458,16 @@
     /* ═══════════════════════════════════════════════════════════════
        STATE
     ═══════════════════════════════════════════════════════════════ */
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
     const cursadas = new Set();
     const planejadas = new Set();
     let activeFilter = "all";
@@ -2025,11 +2035,20 @@
       actionsHtml += `<button class="sheet-btn secondary" id="sheet-btn-close">Fechar</button>`;
       sheetActions.innerHTML = actionsHtml;
 
-      document.getElementById("sheet-btn-main").addEventListener("click", () => { onCardClick(id); closeSheet(); });
+      document.getElementById("sheet-btn-main").addEventListener("click", () => { 
+        closeSheet(); 
+        setTimeout(() => onCardClick(id), 10); 
+      });
       const btnCursando = document.getElementById("sheet-btn-cursando");
-      if (btnCursando) btnCursando.addEventListener("click", () => { onCardRightClick(id); closeSheet(); });
+      if (btnCursando) btnCursando.addEventListener("click", () => { 
+        closeSheet(); 
+        setTimeout(() => onCardRightClick(id), 10); 
+      });
       const btnSim = document.getElementById("sheet-btn-sim");
-      if (btnSim) btnSim.addEventListener("click", () => { toggleSim(id); closeSheet(); });
+      if (btnSim) btnSim.addEventListener("click", () => { 
+        closeSheet(); 
+        setTimeout(() => toggleSim(id), 10); 
+      });
       document.getElementById("sheet-btn-close").addEventListener("click", closeSheet);
     }
 
