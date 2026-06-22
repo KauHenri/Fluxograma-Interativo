@@ -46,6 +46,14 @@
       --c-destaque-bd: #7c3aed;
       --c-destaque-bg: #1e1535;
 
+      --c-simulada-bg: #1a1200;
+      --c-simulada-bd: #f59e0b;
+      --c-simulada-txt: #fcd34d;
+
+      --c-desbloqueia-bg: #001a1f;
+      --c-desbloqueia-bd: #22d3ee;
+      --c-desbloqueia-txt: #67e8f9;
+
       --accent: #7c3aed;
       --accent2: #a855f7;
       --mono: 'JetBrains Mono', monospace;
@@ -76,12 +84,6 @@
       align-items: center;
       gap: 16px;
       height: 56px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    header::-webkit-scrollbar {
-      display: none;
     }
 
     .logo {
@@ -789,6 +791,166 @@
       background: #f87171;
     }
 
+    /* ── Menu dropdown ───────────────────────────────────────────────── */
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      min-width: 210px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .55);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity .15s, transform .15s;
+    }
+
+    .menu-dropdown.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-family: var(--sans);
+      font-size: 12px;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      transition: background .1s, color .1s;
+      white-space: nowrap;
+    }
+
+    .menu-item:hover {
+      background: var(--surface2);
+      color: #e2e8f0;
+    }
+
+    .menu-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .menu-item.sim-active {
+      color: var(--c-simulada-txt);
+    }
+
+    .menu-item.sim-active:hover {
+      color: var(--c-simulada-txt);
+      background: rgba(245, 158, 11, .1);
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* ── Simulation banner ───────────────────────────────────────────── */
+    .sim-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 20px;
+      background: rgba(245, 158, 11, .08);
+      border-bottom: 1px solid rgba(245, 158, 11, .25);
+      font-size: 11px;
+      color: #f59e0b;
+    }
+
+    .sim-banner.active {
+      display: flex;
+    }
+
+    .sim-banner-label {
+      font-weight: 600;
+    }
+
+    .sim-banner-count {
+      font-family: var(--mono);
+      color: #fcd34d;
+    }
+
+    .sim-banner-spacer {
+      flex: 1;
+    }
+
+    .sim-banner-clear {
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, .35);
+      background: transparent;
+      color: #f59e0b;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background .1s;
+    }
+
+    .sim-banner-clear:hover {
+      background: rgba(245, 158, 11, .15);
+    }
+
+    .sim-banner-exit {
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, .35);
+      background: transparent;
+      color: #f87171;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background .1s;
+    }
+
+    .sim-banner-exit:hover {
+      background: rgba(248, 113, 113, .1);
+    }
+
+    /* ── Legend sim swatches ─────────────────────────────────────────── */
+    .ls-simulada {
+      background: var(--c-simulada-bg);
+      border-color: var(--c-simulada-bd);
+    }
+
+    .ls-desbloqueia {
+      background: var(--c-desbloqueia-bg);
+      border-color: var(--c-desbloqueia-bd);
+    }
+
+    /* ── Card sim overrides ──────────────────────────────────────────── */
+    .card[data-sim="simulada"] {
+      border-color: var(--c-simulada-bd) !important;
+      background: var(--c-simulada-bg) !important;
+      color: var(--c-simulada-txt) !important;
+      box-shadow: 0 0 0 1px var(--c-simulada-bd), 0 0 10px rgba(245, 158, 11, .2);
+    }
+
+    .card[data-sim="desbloqueia"] {
+      border-color: var(--c-desbloqueia-bd) !important;
+      background: var(--c-desbloqueia-bg) !important;
+      color: var(--c-desbloqueia-txt) !important;
+      box-shadow: 0 0 0 1px var(--c-desbloqueia-bd), 0 0 10px rgba(34, 211, 238, .15);
+    }
+
     /* ── Toast ───────────────────────────────────────────────────────── */
     #toast {
       position: fixed;
@@ -1123,31 +1285,58 @@
 
     <div class="header-spacer"></div>
 
-    <button class="btn-icon" id="btn-horas" title="Ver carga horária">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
-      </svg>
-    </button>
-
-    <button class="btn-icon" id="btn-compartilhar" title="Copiar link com progresso">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="18" cy="5" r="3" />
-        <circle cx="6" cy="12" r="3" />
-        <circle cx="18" cy="19" r="3" />
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-      </svg>
-    </button>
-
-    <a class="btn-icon" id="btn-pdf" href="fluxo_curso_ecp_ppc_2026-1.pdf" target="_blank" rel="noopener"
-      title="Abrir PDF original">
-      PDF
-    </a>
-
-    <button class="btn-icon compact" id="btn-ajuda" title="Como funciona" aria-label="Como funciona">
-      ?
-    </button>
+    <div class="menu-wrap">
+      <button class="btn-icon" id="btn-menu" title="Menu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <div class="menu-dropdown" id="menu-dropdown">
+        <button class="menu-item" id="menu-horas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Ver carga horária
+        </button>
+        <button class="menu-item" id="menu-compartilhar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+          Compartilhar link
+        </button>
+        <a class="menu-item" id="menu-pdf" href="fluxo_curso_ecp_ppc_2026-1.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          Fluxograma original
+        </a>
+        <button class="menu-item" id="menu-ajuda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Como usar
+        </button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" id="menu-simular">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+          Simular semestre
+        </button>
+      </div>
+    </div>
   </header>
 
   <!-- ── Filter bar ── -->
@@ -1181,6 +1370,15 @@
     </div>
     <div class="controls-spacer"></div>
     <button class="btn-small" id="btn-reset">Limpar progresso</button>
+  </div>
+
+  <!-- ── Simulation banner ── -->
+  <div class="sim-banner" id="sim-banner">
+    <span class="sim-banner-label">🔮 Simulação</span>
+    <span class="sim-banner-count" id="sim-count">0 disciplinas</span>
+    <span class="sim-banner-spacer"></span>
+    <button class="sim-banner-clear" id="sim-clear">Limpar</button>
+    <button class="sim-banner-exit" id="sim-exit">Sair</button>
   </div>
 
   <!-- ── Grid ── -->
@@ -1394,7 +1592,7 @@
 
       if (!isTouchDevice) {
         // ── Desktop: mouse events ──────────────────────────────────
-        el.addEventListener("click", () => onCardClick(d.id));
+        el.addEventListener("click", () => modoSim ? toggleSim(d.id) : onCardClick(d.id));
         el.addEventListener("contextmenu", e => { e.preventDefault(); onCardRightClick(d.id); });
         el.addEventListener("mouseenter", e => onCardHover(d.id, e));
         el.addEventListener("mouseleave", () => onCardLeave(d.id));
@@ -1406,7 +1604,26 @@
         // gere eventos sintéticos de click/mouseenter/mouseleave.
         let tapTimer = null;
         let tapCount = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const SCROLL_THRESHOLD = 10; // px — acima disso é scroll, não toque
+
+        el.addEventListener("touchstart", (e) => {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
         el.addEventListener("touchend", (e) => {
+          const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+          const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+
+          // Se o dedo se moveu, era scroll — ignora
+          if (dx > SCROLL_THRESHOLD || dy > SCROLL_THRESHOLD) {
+            tapCount = 0;
+            clearTimeout(tapTimer);
+            return;
+          }
+
           e.preventDefault();
           tapCount++;
           if (tapCount === 1) {
@@ -1414,7 +1631,7 @@
             // se não vier, executa a ação de marcar.
             tapTimer = setTimeout(() => {
               tapCount = 0;
-              onCardClick(d.id);
+              modoSim ? toggleSim(d.id) : onCardClick(d.id);
             }, 300);
           } else if (tapCount >= 2) {
             clearTimeout(tapTimer);
@@ -1519,7 +1736,7 @@
           }
         });
         showTooltip(id, e);
-      }, 200);
+      }, 500);
     }
 
     function onCardLeave(id) {
@@ -1662,7 +1879,6 @@
       panelOverlay.classList.add("open");
     }
 
-    document.getElementById("btn-horas").addEventListener("click", openPanel);
     document.getElementById("panel-close").addEventListener("click", () => panelOverlay.classList.remove("open"));
     panelOverlay.addEventListener("click", e => { if (e.target === panelOverlay) panelOverlay.classList.remove("open"); });
 
@@ -1681,20 +1897,19 @@
       localStorage.setItem("ecp_manual_seen", "1");
     }
 
-    document.getElementById("btn-ajuda").addEventListener("click", () => openManual());
     document.getElementById("manual-close").addEventListener("click", closeManual);
     manualOverlay.addEventListener("click", e => { if (e.target === manualOverlay) closeManual(); });
 
     /* ═══════════════════════════════════════════════════════════════
        SHARE
     ═══════════════════════════════════════════════════════════════ */
-    document.getElementById("btn-compartilhar").addEventListener("click", () => {
+    function doShare() {
       const ids = [...cursadas].join(",");
       const url = location.origin + location.pathname + "?c=" + encodeURIComponent(ids);
       navigator.clipboard.writeText(url).then(() => showToast("Link copiado!")).catch(() => {
         prompt("Copie o link:", url);
       });
-    });
+    }
 
     function loadFromURL() {
       const params = new URLSearchParams(location.search);
@@ -1712,18 +1927,6 @@
       updateAll();
       showToast("Progresso limpo");
     });
-
-    /* ═══════════════════════════════════════════════════════════════
-       TOAST
-    ═══════════════════════════════════════════════════════════════ */
-    let toastTimer;
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
-    }
 
     /* ═══════════════════════════════════════════════════════════════
        BOTTOM SHEET (mobile)
@@ -1755,13 +1958,11 @@
       const deps = getDependentes(id);
       document.querySelectorAll(".card").forEach(el => {
         const eid = el.dataset.id;
-        if (eid === id) { el.classList.remove("dimmed"); el.classList.remove("destaque"); return; }
+        if (eid === id) { el.classList.remove("dimmed", "destaque"); return; }
         if (deps.includes(eid) || (dMap[eid]?.prereqs || []).includes(id)) {
-          el.classList.add("destaque");
-          el.classList.remove("dimmed");
+          el.classList.add("destaque"); el.classList.remove("dimmed");
         } else {
-          el.classList.add("dimmed");
-          el.classList.remove("destaque");
+          el.classList.add("dimmed"); el.classList.remove("destaque");
         }
       });
     }
@@ -1773,7 +1974,6 @@
 
       document.getElementById("sheet-name").textContent = d.nome;
       document.getElementById("sheet-area-text").textContent = d.area + " · ";
-
       const badge = document.getElementById("sheet-status-badge");
       badge.textContent = statusLabel;
       badge.className = "sheet-status-badge " + st;
@@ -1785,12 +1985,8 @@
       if (d.chd) chItems += `<div class="sheet-ch-item"><span class="sheet-ch-val">${d.chd}h</span><span class="sheet-ch-lbl">EaD</span></div>`;
       if (d.che) chItems += `<div class="sheet-ch-item"><span class="sheet-ch-val">${d.che}h</span><span class="sheet-ch-lbl">Extensão</span></div>`;
 
-      let bodyHtml = `<div>
-    <div class="sheet-section-title">Carga Horária</div>
-    <div class="sheet-ch-row">${chItems}</div>
-  </div>`;
+      let bodyHtml = `<div><div class="sheet-section-title">Carga Horária</div><div class="sheet-ch-row">${chItems}</div></div>`;
 
-      // Pré-requisitos
       if (d.prereqs.length) {
         const items = d.prereqs.map(pid => {
           const ok = cursadas.has(pid);
@@ -1798,54 +1994,170 @@
         }).join("");
         bodyHtml += `<div><div class="sheet-section-title">Pré-requisitos</div>${items}</div>`;
       }
-
-      // Correquisitos
       if (d.coreqs.length) {
         const items = d.coreqs.map(cid => `<div class="sheet-list-item"><span class="sheet-icon">⋆</span>${dMap[cid]?.nome || cid}</div>`).join("");
         bodyHtml += `<div><div class="sheet-section-title">Correquisitos</div>${items}</div>`;
       }
-
-      // Disciplinas liberadas
       const deps = getDependentes(id);
       if (deps.length) {
         const items = deps.map(did => `<div class="sheet-list-item"><span class="sheet-icon">→</span>${dMap[did]?.nome || did}</div>`).join("");
         bodyHtml += `<div><div class="sheet-section-title">Libera (${deps.length})</div>${items}</div>`;
       }
-
       sheetBody.innerHTML = bodyHtml;
 
       // Botões de ação
       let actionsHtml = "";
-
       if (st === "concluida") {
         actionsHtml += `<button class="sheet-btn danger" id="sheet-btn-main">Desmarcar como concluída</button>`;
       } else {
         actionsHtml += `<button class="sheet-btn primary" id="sheet-btn-main">Marcar como concluída</button>`;
       }
-
       if (st === "planejada") {
         actionsHtml += `<button class="sheet-btn sheet-btn-cursando" id="sheet-btn-cursando">Remover de cursando</button>`;
       } else if (st === "disponivel" || st === "bloqueada") {
         actionsHtml += `<button class="sheet-btn sheet-btn-cursando" id="sheet-btn-cursando">Marcar como cursando</button>`;
       }
-
+      // Botão de simulação (só aparece quando modo sim ativo)
+      if (modoSim && !cursadas.has(id) && !planejadas.has(id)) {
+        const emSim = simSet.has(id);
+        actionsHtml += `<button class="sheet-btn" id="sheet-btn-sim" style="border-color:var(--c-simulada-bd);color:var(--c-simulada-txt);background:var(--c-simulada-bg)">${emSim ? '− Remover da simulação' : '+ Adicionar à simulação'}</button>`;
+      }
       actionsHtml += `<button class="sheet-btn secondary" id="sheet-btn-close">Fechar</button>`;
-
       sheetActions.innerHTML = actionsHtml;
 
-      document.getElementById("sheet-btn-main").addEventListener("click", () => {
-        onCardClick(id);
-        closeSheet();
-      });
+      document.getElementById("sheet-btn-main").addEventListener("click", () => { onCardClick(id); closeSheet(); });
       const btnCursando = document.getElementById("sheet-btn-cursando");
-      if (btnCursando) btnCursando.addEventListener("click", () => {
-        onCardRightClick(id);
-        closeSheet();
-      });
+      if (btnCursando) btnCursando.addEventListener("click", () => { onCardRightClick(id); closeSheet(); });
+      const btnSim = document.getElementById("sheet-btn-sim");
+      if (btnSim) btnSim.addEventListener("click", () => { toggleSim(id); closeSheet(); });
       document.getElementById("sheet-btn-close").addEventListener("click", closeSheet);
     }
 
     sheetOverlay.addEventListener("click", closeSheet);
+
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER MENU
+    ═══════════════════════════════════════════════════════════════ */
+    const menuBtn = document.getElementById("btn-menu");
+    const menuDropdown = document.getElementById("menu-dropdown");
+
+    function toggleMenu(e) {
+      e.stopPropagation();
+      menuDropdown.classList.toggle("open");
+    }
+    function closeMenu() { menuDropdown.classList.remove("open"); }
+
+    menuBtn.addEventListener("click", toggleMenu);
+    document.addEventListener("click", closeMenu);
+    menuDropdown.addEventListener("click", e => e.stopPropagation());
+
+    document.getElementById("menu-horas").addEventListener("click", () => { closeMenu(); openPanel(); });
+    document.getElementById("menu-compartilhar").addEventListener("click", () => { closeMenu(); doShare(); });
+    document.getElementById("menu-ajuda").addEventListener("click", () => { closeMenu(); openManual(); });
+    document.getElementById("menu-simular").addEventListener("click", () => { closeMenu(); toggleSimulacao(); });
+
+    /* ═══════════════════════════════════════════════════════════════
+       SIMULAÇÃO DE SEMESTRE
+    ═══════════════════════════════════════════════════════════════ */
+    const simSet = new Set();
+    let modoSim = false;
+
+    function saveSimState() {
+      localStorage.setItem("ecp_simSet", JSON.stringify([...simSet]));
+      localStorage.setItem("ecp_modoSim", modoSim ? "1" : "0");
+    }
+    function loadSimState() {
+      try {
+        const raw = localStorage.getItem("ecp_simSet");
+        if (raw) JSON.parse(raw).forEach(id => { if (dMap[id]) simSet.add(id); });
+        modoSim = localStorage.getItem("ecp_modoSim") === "1";
+      } catch { }
+    }
+
+    function canAddToSim(id) {
+      const d = dMap[id];
+      if (!d) return false;
+      const base = new Set([...cursadas, ...planejadas, ...simSet]);
+      // Pré-requisitos precisam estar concluídos, cursando ou na simulação
+      // (matrícula simultânea: A→B, se A está na sim, B também pode estar)
+      return d.prereqs.every(pid => base.has(pid));
+    }
+
+    function toggleSim(id) {
+      if (cursadas.has(id) || planejadas.has(id)) {
+        showToast("Já está no seu progresso real");
+        return;
+      }
+      if (simSet.has(id)) {
+        simSet.delete(id);
+      } else {
+        if (!canAddToSim(id)) {
+          const base = new Set([...cursadas, ...planejadas, ...simSet]);
+          const missing = dMap[id]?.prereqs.filter(pid => !base.has(pid)).map(pid => dMap[pid]?.nome || pid) || [];
+          showToast(`Adicione antes: ${missing.slice(0, 2).join(", ")}${missing.length > 2 ? "…" : ""}`);
+          return;
+        }
+        simSet.add(id);
+      }
+      saveSimState();
+      updateSimOverlay();
+    }
+
+    function isAvailableWith(d, set) {
+      if (!d) return false;
+      if (!d.prereqs.every(p => set.has(p))) return false;
+      return d.coreqs.every(cid => {
+        const coreq = dMap[cid];
+        return !coreq || set.has(cid) || coreq.prereqs.every(p => p === d.id || set.has(p));
+      });
+    }
+
+    function updateSimOverlay() {
+      const base = new Set([...cursadas, ...planejadas, ...simSet]);
+      const baseOld = new Set([...cursadas, ...planejadas]);
+      document.querySelectorAll(".card").forEach(el => {
+        const id = el.dataset.id;
+        if (!modoSim) { el.removeAttribute("data-sim"); return; }
+        if (simSet.has(id)) {
+          el.dataset.sim = "simulada";
+        } else if (!cursadas.has(id) && !planejadas.has(id)) {
+          const d = dMap[id];
+          const cobertosSim = isAvailableWith(d, base);
+          const jaDisponivel = isAvailableWith(d, baseOld);
+          if (cobertosSim && !jaDisponivel) {
+            el.dataset.sim = "desbloqueia";
+          } else {
+            el.removeAttribute("data-sim");
+          }
+        } else {
+          el.removeAttribute("data-sim");
+        }
+      });
+      // Atualiza banner
+      const n = simSet.size;
+      document.getElementById("sim-count").textContent =
+        n === 0 ? "nenhuma selecionada" : `${n} disciplina${n !== 1 ? "s" : ""}`;
+    }
+
+    function toggleSimulacao() {
+      modoSim = !modoSim;
+      saveSimState();
+      document.getElementById("sim-banner").classList.toggle("active", modoSim);
+      const menuSimBtn = document.getElementById("menu-simular");
+      menuSimBtn.classList.toggle("sim-active", modoSim);
+      menuSimBtn.querySelector("svg").style.color = modoSim ? "var(--c-simulada-bd)" : "";
+      updateSimOverlay();
+      showToast(modoSim ? "Modo simulação ativado — clique nas disciplinas para simular" : "Simulação encerrada");
+    }
+
+    document.getElementById("sim-clear").addEventListener("click", () => {
+      simSet.clear();
+      saveSimState();
+      updateSimOverlay();
+    });
+    document.getElementById("sim-exit").addEventListener("click", () => {
+      if (modoSim) toggleSimulacao();
+    });
 
     /* ═══════════════════════════════════════════════════════════════
        INIT
@@ -1858,9 +2170,16 @@
     }
 
     loadState();
+    loadSimState();
     loadFromURL();
     buildGrid();
     updateAll();
+    // Restaurar modo simulação se estava ativo
+    if (modoSim) {
+      document.getElementById("sim-banner").classList.add("active");
+      document.getElementById("menu-simular").classList.add("sim-active");
+      updateSimOverlay();
+    }
     if (!localStorage.getItem("ecp_manual_seen")) openManual(true);
 
   </script>
