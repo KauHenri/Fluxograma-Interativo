@@ -116,7 +116,7 @@ const disciplinas = [
   },
   {
     id: "10",
-    nome: "Física Básica: Mecânica, Experimental de",
+    nome: "Experimental de Física Básica: Mecânica",
     periodo: 2,
     cht: 0, chp: 30, chd: 0, che: 0, total: 30,
     prereqs: [],
@@ -152,7 +152,7 @@ const disciplinas = [
   },
   {
     id: "14",
-    nome: "Sistemas Digitais, Experimental de",
+    nome: "Experimental de Sistemas Digitais",
     periodo: 2,
     cht: 0, chp: 30, chd: 0, che: 0, total: 30,
     prereqs: [],
@@ -181,7 +181,7 @@ const disciplinas = [
   },
   {
     id: "17",
-    nome: "Física Básica: Eletricidade e Magnetismo, Experimental de",
+    nome: "Experimental de Física Básica: Eletricidade e Magnetismo",
     periodo: 3,
     cht: 0, chp: 30, chd: 0, che: 0, total: 30,
     prereqs: [],
@@ -291,7 +291,7 @@ const disciplinas = [
   },
   {
     id: "29",
-    nome: "Circuitos Eletro-Elétricos I, Experimental de",
+    nome: "Experimental de Circuitos Eletro-Elétricos I",
     periodo: 4,
     cht: 0, chp: 15, chd: 0, che: 0, total: 15,
     prereqs: ["11"],
@@ -338,7 +338,7 @@ const disciplinas = [
   },
   {
     id: "34",
-    nome: "Eletrônica Analógica I, Experimental de",
+    nome: "Experimental de Eletrônica Analógica I",
     periodo: 5,
     cht: 0, chp: 30, chd: 0, che: 0, total: 30,
     prereqs: [],
